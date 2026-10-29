@@ -83,14 +83,14 @@ public class Main {
 
     private static void printMainMenu() {
         System.out.println();
-        System.out.println("  ┌─────────────────────────────────┐");
-        System.out.println("  │          MAIN MENU              │");
-        System.out.println("  ├─────────────────────────────────┤");
-        System.out.println("  │  1. Table Management            │");
-        System.out.println("  │  2. Menu Item Management        │");
-        System.out.println("  │  3. Order Management            │");
-        System.out.println("  │  4. Payment & Billing           │");
-        System.out.println("  │  0. Exit                        │");
-        System.out.println("  └─────────────────────────────────┘");
+        System.out.println("  ┌─────────────────────────────┐");
+        System.out.println("  │          MAIN MENU          │");
+        System.out.println("  ├─────────────────────────────┤");
+        System.out.println("  │  1. Table Management        │");
+        System.out.println("  │  2. Menu Item Management    │");
+        System.out.println("  │  3. Order Management        │");
+        System.out.println("  │  4. Payment & Billing       │");
+        System.out.println("  │  0. Exit                    │");
+        System.out.println("  └─────────────────────────────┘");
     }
 }
