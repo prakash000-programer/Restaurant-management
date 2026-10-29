@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Grand Bistro — Restaurant Management System</title>
+  <meta name="description" content="A premium restaurant management system for handling tables, menu items, orders, and order history." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       SIDEBAR
+  ════════════════════════════════════════════════════════════════ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">&#127869;</div>
+      <div class="logo-text">
+        <span class="logo-name">Grand Bistro</span>
+        <span class="logo-sub">Management</span>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <button class="nav-item active" id="nav-tables" onclick="switchSection('tables')">
+        <span class="nav-icon">&#129681;</span>
+        <span class="nav-label">Tables</span>
+      </button>
+      <button class="nav-item" id="nav-menu" onclick="switchSection('menu')">
+        <span class="nav-icon">&#128203;</span>
+        <span class="nav-label">Menu</span>
+      </button>
+      <button class="nav-item" id="nav-order" onclick="switchSection('order')">
+        <span class="nav-icon">&#128722;</span>
+        <span class="nav-label">Place Order</span>
+      </button>
+      <button class="nav-item" id="nav-history" onclick="switchSection('history')">
+        <span class="nav-icon">&#128220;</span>
+        <span class="nav-label">Order History</span>
+      </button>
+      <button class="nav-item" id="nav-payments" onclick="switchSection('payments')">
+        <span class="nav-icon">&#128179;</span>
+        <span class="nav-label">Payments</span>
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="status-dot"></div>
+      <span>System Online</span>
+    </div>
+  </aside>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       MAIN CONTENT
+  ════════════════════════════════════════════════════════════════ -->
+  <main class="main-content">
+
+    <!-- Top Header -->
+    <header class="top-header">
+      <div class="header-breadcrumb">
+        <span id="header-section-name">Tables</span>
+        <span class="breadcrumb-sep">&rsaquo;</span>
+        <span id="header-section-sub">Overview</span>
+      </div>
+      <div class="header-right">
+        <div class="header-time" id="header-clock"></div>
+        <div class="admin-badge">Admin</div>
+      </div>
+    </header>
+
+    <!-- ─────────────────────────────────────────────────────────
+         SECTION 1: TABLE MANAGEMENT
+    ────────────────────────────────────────────────────────────── -->
+    <section class="section active" id="section-tables">
+      <div class="section-header">
+        <div>
+          <h1 class="section-title">Table Management</h1>
+          <p class="section-desc">View, add, update and delete dining tables.</p>
+        </div>
+        <button class="btn btn-primary" onclick="openModal('modal-add-table')">+ Add Table</button>
+      </div>
+      <div class="stats-row" id="table-stats"></div>
+      <div class="tables-grid" id="tables-grid"></div>
+    </section>
+
+    <!-- ─────────────────────────────────────────────────────────
+         SECTION 2: MENU MANAGEMENT
+    ────────────────────────────────────────────────────────────── -->
+    <section class="section" id="section-menu">
+      <div class="section-header">
+        <div>
+          <h1 class="section-title">Menu Management</h1>
+          <p class="section-desc">Full CRUD operations on all menu items.</p>
+        </div>
+        <button class="btn btn-primary" onclick="openModal('modal-add-menu')">+ Add Item</button>
+      </div>
+      <div class="filter-bar" id="menu-filter-bar">
+        <button class="filter-btn active" onclick="filterMenu('ALL', this)">All</button>
+        <button class="filter-btn" onclick="filterMenu('STARTER', this)">Starters</button>
+        <button class="filter-btn" onclick="filterMenu('MAIN_COURSE', this)">Mains</button>
+        <button class="filter-btn" onclick="filterMenu('DESSERT', this)">Desserts</button>
+        <button class="filter-btn" onclick="filterMenu('BEVERAGE', this)">Beverages</button>
+      </div>
+      <div class="menu-grid" id="menu-grid"></div>
+    </section>
+
+    <!-- ─────────────────────────────────────────────────────────
+         SECTION 3: PLACE ORDER
+    ────────────────────────────────────────────────────────────── -->
+    <section class="section" id="section-order">
+      <div class="section-header">
+        <div>
+          <h1 class="section-title">Place Order</h1>
+          <p class="section-desc">Select a table, browse the menu, and build an order.</p>
+        </div>
+        <div class="order-table-selector">
+          <label for="order-table-select">Table:</label>
+          <select id="order-table-select" onchange="setOrderTable(this.value)">
+            <option value="">-- Select Table --</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="order-layout">
+        <!-- Left: Menu browser -->
+        <div class="order-menu-panel">
+          <div class="panel-header">
+            <h2>Menu</h2>
+            <div class="filter-bar small">
+              <button class="filter-btn active" onclick="filterOrderMenu('ALL', this)">All</button>
+              <button class="filter-btn" onclick="filterOrderMenu('STARTER', this)">Starters</button>
+              <button class="filter-btn" onclick="filterOrderMenu('MAIN_COURSE', this)">Mains</button>
+              <button class="filter-btn" onclick="filterOrderMenu('DESSERT', this)">Desserts</button>
+              <button class="filter-btn" onclick="filterOrderMenu('BEVERAGE', this)">Beverages</button>
+            </div>
+          </div>
+          <div class="order-menu-list" id="order-menu-list"></div>
+        </div>
+
+        <!-- Right: Current order -->
+        <div class="order-cart-panel">
+          <div class="panel-header">
+            <h2>Current Order</h2>
+            <button class="btn btn-danger-sm" onclick="cancelOrder()" id="cancel-order-btn" style="display:none">Cancel Order</button>
+          </div>
+          <div class="cart-empty" id="cart-empty">
+            <div class="cart-empty-icon">&#128722;</div>
+            <p>No items added yet.<br/>Select a table and add items from the menu.</p>
+          </div>
+          <div class="cart-items" id="cart-items"></div>
+          <div class="cart-footer" id="cart-footer" style="display:none">
+            <div class="cart-total">
+              <span>Total:</span>
+              <span class="cart-total-amount" id="cart-total">$0.00</span>
+            </div>
+            <button class="btn btn-success" onclick="placeOrder()">Place Order</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─────────────────────────────────────────────────────────
+         SECTION 4: ORDER HISTORY
+    ────────────────────────────────────────────────────────────── -->
+    <section class="section" id="section-history">
+      <div class="section-header">
+        <div>
+          <h1 class="section-title">Order History</h1>
+          <p class="section-desc">Top 10 most recent orders. Admin access required for edits.</p>
+        </div>
+        <span class="admin-note">Edit / Delete requires admin password</span>
+      </div>
+      <div class="history-list" id="history-list"></div>
+    </section>
+
+    <!-- ─────────────────────────────────────────────────────────
+         SECTION 5: PAYMENT & BILLING
+    ────────────────────────────────────────────────────────────── -->
+    <section class="section" id="section-payments">
+      <div class="section-header">
+        <div>
+          <h1 class="section-title">Payment &amp; Billing</h1>
+          <p class="section-desc">Settle table orders, generate receipts, process refunds, and track restaurant revenue.</p>
+        </div>
+        <button class="btn btn-primary" onclick="openSettleOrderSelector()">+ Settle Active Order</button>
+      </div>
+
+      <!-- Payment Stats / Revenue Cards -->
+      <div class="stats-row" id="payment-stats"></div>
+
+      <!-- Unsettled Orders Box -->
+      <div class="payment-unsettled-box">
+        <div class="panel-header">
+          <h2>Orders Awaiting Settlement</h2>
+          <span class="badge badge-warning" id="unsettled-count-badge">0 Pending</span>
+        </div>
+        <div id="unsettled-orders-list" class="unsettled-orders-list"></div>
+      </div>
+
+      <!-- Payment Transaction History -->
+      <div class="payment-history-box">
+        <div class="panel-header" style="flex-wrap: wrap; gap: 12px;">
+          <h2>Transaction History</h2>
+          <div class="filter-bar small" id="payment-filter-bar">
+            <button class="filter-btn active" onclick="filterPayments('ALL', this)">All</button>
+            <button class="filter-btn" onclick="filterPayments('CASH', this)">Cash</button>
+            <button class="filter-btn" onclick="filterPayments('CREDIT_CARD', this)">Credit Card</button>
+            <button class="filter-btn" onclick="filterPayments('DEBIT_CARD', this)">Debit Card</button>
+            <button class="filter-btn" onclick="filterPayments('UPI', this)">UPI</button>
+            <button class="filter-btn" onclick="filterPayments('ONLINE', this)">Online</button>
+            <button class="filter-btn" onclick="filterPayments('REFUNDED', this)">Refunded</button>
+          </div>
+        </div>
+        <div class="payment-history-table-wrapper">
+          <table class="payment-table">
+            <thead>
+              <tr>
+                <th>Receipt #</th>
+                <th>Order #</th>
+                <th>Table</th>
+                <th>Method</th>
+                <th>Status</th>
+                <th>Amount Due</th>
+                <th>Tendered / Change</th>
+                <th>Date &amp; Time</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="payment-history-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       MODALS
+  ════════════════════════════════════════════════════════════════ -->
+
+  <!-- Add Table Modal -->
+  <div class="modal-overlay" id="modal-add-table">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>Add New Table</h2>
+        <button class="modal-close" onclick="closeModal('modal-add-table')">&#x2715;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="add-table-capacity">Seat Capacity</label>
+          <input type="number" id="add-table-capacity" min="1" max="20" placeholder="e.g. 4" />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeModal('modal-add-table')">Cancel</button>
+        <button class="btn btn-primary" onclick="addTable()">Add Table</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Table Modal -->
+  <div class="modal-overlay" id="modal-edit-table">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>Update Table</h2>
+        <button class="modal-close" onclick="closeModal('modal-edit-table')">&#x2715;</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="edit-table-id" />
+        <div class="form-group">
+          <label for="edit-table-capacity">Seat Capacity</label>
+          <input type="number" id="edit-table-capacity" min="1" max="20" />
+        </div>
+        <div class="form-group">
+          <label for="edit-table-status">Status</label>
+          <select id="edit-table-status">
+            <option value="FREE">FREE</option>
+            <option value="OCCUPIED">OCCUPIED</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeModal('modal-edit-table')">Cancel</button>
+        <button class="btn btn-primary" onclick="updateTable()">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Menu Item Modal -->
+  <div class="modal-overlay" id="modal-add-menu">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>Add Menu Item</h2>
+        <button class="modal-close" onclick="closeModal('modal-add-menu')">&#x2715;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="add-menu-name">Item Name</label>
+          <input type="text" id="add-menu-name" placeholder="e.g. Grilled Salmon" />
+        </div>
+        <div class="form-group">
+          <label for="add-menu-price">Price ($)</label>
+          <input type="number" id="add-menu-price" min="0" step="0.01" placeholder="e.g. 12.50" />
+        </div>
+        <div class="form-group">
+          <label for="add-menu-category">Category</label>
+          <select id="add-menu-category">
+            <option value="STARTER">Starter</option>
+            <option value="MAIN_COURSE">Main Course</option>
+            <option value="DESSERT">Dessert</option>
+            <option value="BEVERAGE">Beverage</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeModal('modal-add-menu')">Cancel</button>
+        <button class="btn btn-primary" onclick="addMenuItem()">Add Item</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Menu Item Modal -->
+  <div class="modal-overlay" id="modal-edit-menu">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>Edit Menu Item</h2>
+        <button class="modal-close" onclick="closeModal('modal-edit-menu')">&#x2715;</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="edit-menu-id" />
+        <div class="form-group">
+          <label for="edit-menu-name">Item Name</label>
+          <input type="text" id="edit-menu-name" />
+        </div>
+        <div class="form-group">
+          <label for="edit-menu-price">Price ($)</label>
+          <input type="number" id="edit-menu-price" min="0" step="0.01" />
+        </div>
+        <div class="form-group">
+          <label for="edit-menu-category">Category</label>
+          <select id="edit-menu-category">
+            <option value="STARTER">Starter</option>
+            <option value="MAIN_COURSE">Main Course</option>
+            <option value="DESSERT">Dessert</option>
+            <option value="BEVERAGE">Beverage</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="edit-menu-available">Availability</label>
+          <select id="edit-menu-available">
+            <option value="true">Available</option>
+            <option value="false">Unavailable</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeModal('modal-edit-menu')">Cancel</button>
+        <button class="btn btn-primary" onclick="updateMenuItem()">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quantity Picker Modal -->
+  <div class="modal-overlay" id="modal-qty">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <h2>Add to Order</h2>
+        <button class="modal-close" onclick="closeModal('modal-qty')">&#x2715;</button>
+      </div>
+      <div class="modal-body">
+        <p id="modal-qty-item-name" class="qty-item-name"></p>
+        <p id="modal-qty-item-price" class="qty-item-price"></p>
+        <div class="qty-row">
+          <button class="qty-btn" onclick="changeQty(-1)">&#8722;</button>
+          <span class="qty-display" id="qty-display">1</span>
+          <button class="qty-btn" onclick="changeQty(1)">+</button>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeModal('modal-qty')">Cancel</button>
+        <button class="btn btn-primary" onclick="confirmAddToCart()">Add to Order</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Update Cart Item Modal -->
+  <div class="modal-overlay" id="modal-update-cart">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <h2>Update Quantity</h2>
+        <button class="modal-close" onclick="closeModal('modal-update-cart')">&#x2715;</button>
+      </div>
+      <div class="modal-body">
+        <p id="update-cart-item-name" class="qty-item-name"></p>
+        <div class="qty-row">
+          <button class="qty-btn" onclick="changeUpdateQty(-1)">&#8722;</button>
+          <span class="qty-display" id="update-qty-display">1</span>
+          <button class="qty-btn" onclick="changeUpdateQty(1)">+</button>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeModal('modal-update-cart')">Cancel</button>
+        <button class="btn btn-primary" onclick="confirmUpdateCart()">Update</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Password Modal -->
+  <div class="modal-overlay" id="modal-admin">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <h2>Admin Verification</h2>
+        <button class="modal-close" onclick="closeModal('modal-admin')">&#x2715;</button>
+      </div>
+      <div class="modal-body">
+        <p class="admin-modal-desc">Enter the admin password to continue.</p>
+        <div class="form-group">
+          <label for="admin-password-input">Password</label>
+          <input type="password" id="admin-password-input" placeholder="Enter admin password"
+                 onkeydown="if(event.key==='Enter') verifyAdmin()" />
+        </div>
+        <p class="admin-error" id="admin-error" style="display:none">Incorrect password. Try again.</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeModal('modal-admin')">Cancel</button>
+        <button class="btn btn-primary" onclick="verifyAdmin()">Verify</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Order Modal (Admin) -->
+  <div class="modal-overlay" id="modal-edit-order">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>Edit Order</h2>
+        <button class="modal-close" onclick="closeModal('modal-edit-order')">&#x2715;</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="edit-order-id" />
+        <div class="form-group">
+          <label for="edit-order-status">Order Status</label>
+          <select id="edit-order-status">
+            <option value="PENDING">PENDING</option>
+            <option value="PREPARING">PREPARING</option>
+            <option value="READY">READY</option>
+            <option value="COMPLETED">COMPLETED</option>
+            <option value="CANCELLED">CANCELLED</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Items in this Order</label>
+          <div id="edit-order-items" class="edit-order-items"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeModal('modal-edit-order')">Cancel</button>
+        <button class="btn btn-primary" onclick="saveOrderEdits()">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settle Order Selector Modal -->
+  <div class="modal-overlay" id="modal-select-order">
+    <div class="modal modal-md">
+      <div class="modal-header">
+        <h2>Select Order to Settle</h2>
+        <button class="modal-close" onclick="closeModal('modal-select-order')">&#x2715;</button>
+      </div>
+      <div class="modal-body">
+        <p class="section-desc" style="margin-bottom:14px">Choose an unsettled table order to process bill payment:</p>
+        <div id="unsettled-modal-list" class="unsettled-modal-list"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeModal('modal-select-order')">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settle Payment Modal -->
+  <div class="modal-overlay" id="modal-payment">
+    <div class="modal modal-md">
+      <div class="modal-header">
+        <h2>Settle Bill &amp; Payment</h2>
+        <button class="modal-close" onclick="closeModal('modal-payment')">&#x2715;</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="pay-order-id" />
+        
+        <!-- Order Bill Summary -->
+        <div class="payment-order-summary">
+          <div class="summary-line">
+            <span>Order Reference</span>
+            <strong id="pay-order-ref">Order #0</strong>
+          </div>
+          <div class="summary-line">
+            <span>Table Number</span>
+            <strong id="pay-table-ref">Table #0</strong>
+          </div>
+          <div class="summary-items-preview" id="pay-items-preview"></div>
+          <div class="summary-line">
+            <span>Gross Subtotal</span>
+            <strong id="pay-subtotal">$0.00</strong>
+          </div>
+          <div class="summary-line" style="align-items: center; justify-content: space-between;">
+            <label for="pay-discount-percent" style="margin: 0; font-size: 0.85rem; color: var(--text-muted, #94a3b8);">Discount (%)</label>
+            <input type="number" id="pay-discount-percent" min="0" max="100" value="0" style="width: 75px; padding: 4px 8px; text-align: right; border-radius: 6px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: #fff;" oninput="updatePaymentBillDiscount()" />
+          </div>
+          <div class="summary-line" id="pay-discount-line" style="display:none;">
+            <span>Discount Applied</span>
+            <span style="color: #4ade80;" id="pay-discount-amount">-$0.00</span>
+          </div>
+          <div class="summary-total-line">
+            <span>Net Bill Total Due</span>
+            <span class="pay-amount-due" id="pay-amount-due">$0.00</span>
+          </div>
+        </div>
+
+        <!-- Payment Method Selection -->
+        <div class="form-group" style="margin-top: 16px;">
+          <label>Select Payment Method</label>
+          <div class="payment-methods-grid">
+            <button type="button" class="method-btn active" data-method="CASH" onclick="selectPaymentMethod('CASH', this)">
+              <span class="method-icon">&#128181;</span>
+              <span class="method-text">Cash</span>
+            </button>
+            <button type="button" class="method-btn" data-method="CREDIT_CARD" onclick="selectPaymentMethod('CREDIT_CARD', this)">
+              <span class="method-icon">&#128179;</span>
+              <span class="method-text">Credit Card</span>
+            </button>
+            <button type="button" class="method-btn" data-method="DEBIT_CARD" onclick="selectPaymentMethod('DEBIT_CARD', this)">
+              <span class="method-icon">&#128179;</span>
+              <span class="method-text">Debit Card</span>
+            </button>
+            <button type="button" class="method-btn" data-method="UPI" onclick="selectPaymentMethod('UPI', this)">
+              <span class="method-icon">&#128242;</span>
+              <span class="method-text">UPI / QR</span>
+            </button>
+            <button type="button" class="method-btn" data-method="ONLINE" onclick="selectPaymentMethod('ONLINE', this)">
+              <span class="method-icon">&#127760;</span>
+              <span class="method-text">Online Net</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Cash Details Container -->
+        <div id="pay-cash-container" class="payment-details-box">
+          <label for="pay-cash-tendered">Cash Tendered ($)</label>
+          <input type="number" id="pay-cash-tendered" step="0.01" min="0" placeholder="0.00" oninput="calculateCashChange()" />
+          
+          <!-- Quick Tender Buttons -->
+          <div class="tender-quick-chips" id="tender-quick-chips"></div>
+
+          <!-- Change display -->
+          <div class="change-callout" id="pay-change-callout">
+            <span>Change to Return:</span>
+            <strong id="pay-change-amount">$0.00</strong>
+          </div>
+        </div>
+
+        <!-- Digital Payment Simulation Container -->
+        <div id="pay-digital-container" class="payment-details-box" style="display:none">
+          <div class="digital-sim-box">
+            <span class="digital-sim-icon" id="pay-digital-icon">&#128179;</span>
+            <p id="pay-digital-msg">Ready for card tap or chip insertion.</p>
+            <div class="sim-code">TERMINAL READY &bull; POS #01</div>
+          </div>
+        </div>
+
+        <!-- Free Table Option -->
+        <div class="form-check" style="margin-top: 14px;">
+          <input type="checkbox" id="pay-free-table-check" checked />
+          <label for="pay-free-table-check">Automatically mark table as FREE upon settlement</label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeModal('modal-payment')">Cancel</button>
+        <button class="btn btn-success" onclick="submitPayment()">Complete Payment</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Receipt Modal -->
+  <div class="modal-overlay" id="modal-receipt">
+    <div class="modal modal-md">
+      <div class="modal-header">
+        <h2>Customer Receipt</h2>
+        <button class="modal-close" onclick="closeModal('modal-receipt')">&#x2715;</button>
+      </div>
+      <div class="modal-body receipt-modal-body">
+        <div class="receipt-paper" id="receipt-paper">
+          <!-- Dynamically populated receipt content -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeModal('modal-receipt')">Close</button>
+        <button class="btn btn-primary" onclick="printReceipt()"><span style="margin-right:6px">&#128438;</span> Print Receipt</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast notification -->
+  <div class="toast" id="toast"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
